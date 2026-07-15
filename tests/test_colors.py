@@ -131,9 +131,7 @@ def test_render_accepts_palette_and_overrides(ct: str) -> None:
 
 def test_line_override_is_keyed_on_the_y_column() -> None:
     """A line is one series — "make the revenue line red" keys on `y`, not a row."""
-    png = render_chart(
-        ROWS, chart_type="line", x="tier", y="n", color_overrides={"n": "red"}
-    )
+    png = render_chart(ROWS, chart_type="line", x="tier", y="n", color_overrides={"n": "red"})
     assert png.startswith(_PNG_MAGIC)
 
 

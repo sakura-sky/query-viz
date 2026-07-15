@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -112,9 +113,7 @@ def resolve_colors(
         return ColorResolution(colors=None, unmatched=unmatched)
 
     base = [validate_color(c) for c in palette] if palette else _default_cycle()
-    colors = [
-        pins.get(i, base[i % len(base)]) if base else pins[i] for i in range(len(labels))
-    ]
+    colors = [pins.get(i, base[i % len(base)]) if base else pins[i] for i in range(len(labels))]
     return ColorResolution(colors=colors, unmatched=unmatched)
 
 
