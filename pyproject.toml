@@ -1,0 +1,61 @@
+[project]
+name = "query-viz"
+version = "0.1.0"
+description = "Render tabular query results (list-of-dict rows) as chart images. Rows in, PNG out — no agent framework, no cloud SDK."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Sakura Sky Engineering" }]
+keywords = ["chart", "matplotlib", "visualization", "sql", "dataframe", "png", "agent"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "matplotlib>=3.7,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-cov>=6,<8",
+    "ruff>=0.8,<1",
+    "mypy>=1.13,<2",
+]
+
+[project.urls]
+Source = "https://github.com/sakura-sky/query-viz"
+Issues = "https://github.com/sakura-sky/query-viz/issues"
+Changelog = "https://github.com/sakura-sky/query-viz/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/query_viz"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
