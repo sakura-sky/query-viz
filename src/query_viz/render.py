@@ -12,7 +12,7 @@ from __future__ import annotations
 import io
 from collections.abc import Mapping, Sequence
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 from .colors import resolve_colors
 
@@ -56,9 +56,8 @@ def render_chart(
         rows: The data, one mapping per row (e.g. BigQuery/Snowflake results).
         chart_type: One of ``bar``, ``line``, ``pie``, ``scatter``.
         x: Column for the category / x-axis (pie slice labels).
-        y: Column for the numeric value / y-axis. Required for every type
-            except a pie where the value column is named by ``y`` too — for a
-            pie, ``y`` holds the slice sizes.
+        y: Column for the numeric value / y-axis. Required for every chart
+            type; for a pie, ``y`` holds the slice sizes.
         title: Optional chart title.
         dpi: Output resolution.
         figsize: Figure size in inches.
@@ -138,13 +137,20 @@ def render_chart(
             def _pct(pct: float) -> str:
                 return f"{pct:.1f}%" if pct >= _MIN_PCT_LABEL else ""
 
-            wedges, _texts, autotexts = ax.pie(
-                ys,
-                autopct=_pct,
-                pctdistance=0.75,
-                startangle=90,
-                counterclock=False,
-                colors=colors,
+            # With `autopct` set, `pie` unpacks to (wedges, texts, autotexts) on
+            # every supported matplotlib. Its type stubs disagree across
+            # versions (a 2-or-3 tuple in 3.10, `PieContainer` in 3.11), so the
+            # result is treated as `Any` for unpacking.
+            wedges, _texts, autotexts = cast(
+                Any,
+                ax.pie(
+                    ys,
+                    autopct=_pct,
+                    pctdistance=0.75,
+                    startangle=90,
+                    counterclock=False,
+                    colors=colors,
+                ),
             )
             for t in autotexts:
                 t.set_fontsize(9)

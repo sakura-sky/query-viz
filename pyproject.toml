@@ -1,22 +1,23 @@
 [project]
 name = "query-viz"
-version = "0.1.0"
-description = "Render tabular query results (list-of-dict rows) as chart images. Rows in, PNG out — no agent framework, no cloud SDK."
+dynamic = ["version"]
+description = "Render tabular query results (list-of-dict rows) as chart images. Rows in, PNG out: no agent framework, no cloud SDK."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{ name = "Sakura Sky Engineering" }]
 keywords = ["chart", "matplotlib", "visualization", "sql", "dataframe", "png", "agent"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Visualization",
     "Typing :: Typed",
 ]
@@ -37,13 +38,28 @@ dev = [
 Source = "https://github.com/sakura-sky/query-viz"
 Issues = "https://github.com/sakura-sky/query-viz/issues"
 Changelog = "https://github.com/sakura-sky/query-viz/blob/main/CHANGELOG.md"
+Security = "https://github.com/sakura-sky/query-viz/blob/main/SECURITY.md"
 
 [build-system]
 requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
+[tool.hatch.version]
+path = "src/query_viz/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/query_viz"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/SECURITY.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
 
 [tool.ruff]
 line-length = 100
@@ -51,7 +67,6 @@ target-version = "py310"
 src = ["src", "tests"]
 
 [tool.mypy]
-python_version = "3.10"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

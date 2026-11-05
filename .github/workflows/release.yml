@@ -1,44 +1,93 @@
 name: Release
 
-# Publish to PyPI when a `vX.Y.Z` tag is pushed.
-# Uses PyPI Trusted Publishers (OIDC) — no secrets to manage.
-# Set up Trusted Publisher at https://pypi.org/manage/account/publishing/
-# before the first release.
+# Publish to PyPI when a tag starting with `v` is pushed, using PyPI Trusted
+# Publishing (OIDC, no stored secrets). The build job rejects a tag that does
+# not match `__version__`. One-time setup and the release steps are in
+# CONTRIBUTING.md under "Releasing (maintainers)".
+# A manual run (workflow_dispatch) builds and checks the distribution and
+# publishes it to TestPyPI as a rehearsal; it never publishes to PyPI.
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
   build:
     name: Build distribution
+    needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: "3.12"
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+      - name: Check tag matches package version and changelog
+        if: github.ref_type == 'tag'
+        run: |
+          version=$(grep -Po '^__version__ = "\K[^"]+' src/query_viz/__init__.py)
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package version ${version}"
+            exit 1
+          fi
+          if ! awk -v h="## [${version}]" 'index($0, h) == 1 { found = 1 } END { exit !found }' CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for ${version}"
+            exit 1
+          fi
       - name: Build
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install --upgrade pip build twine
           python -m build
-      - uses: actions/upload-artifact@v4
+          python -m twine check --strict dist/*
+      - name: Smoke-test the wheel and the sdist in clean environments
+        run: |
+          for dist in dist/*.whl dist/*.tar.gz; do
+            rm -rf /tmp/smoke
+            python -m venv /tmp/smoke
+            /tmp/smoke/bin/pip install "$dist"
+            (cd /tmp && /tmp/smoke/bin/python -c "import query_viz; print(query_viz.__version__)")
+          done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
           path: dist/
+
+  publish-testpypi:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/query-viz
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with: { name: dist, path: dist/ }
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
   publish-pypi:
     name: Publish to PyPI
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
       url: https://pypi.org/p/query-viz
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with: { name: dist, path: dist/ }
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

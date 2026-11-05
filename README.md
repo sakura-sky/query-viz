@@ -2,8 +2,8 @@
 
 **Render tabular query results as chart images.** Rows in, PNG out.
 
-`query-viz` does one thing: it turns a list of row dicts — exactly what a data
-warehouse driver (BigQuery, Snowflake, Postgres, …) hands back — into a chart
+`query-viz` does one thing: it turns a list of row dicts (exactly what a data
+warehouse driver such as BigQuery, Snowflake or Postgres hands back) into a chart
 image. No agent framework, no cloud SDK, no DataFrame requirement. That makes it
 a clean building block for an LLM agent tool, a report generator, or any
 pipeline that has already fetched data and wants a picture of it.
@@ -43,10 +43,13 @@ render_chart(
     *,
     chart_type,               # "bar" | "line" | "pie" | "scatter"
     x,                        # category / x-axis column (pie slice labels)
-    y=None,                   # numeric value column (required except... see below)
+    y=None,                   # numeric value column (required for every type)
     title="",
     dpi=120,
     figsize=(10.0, 6.0),
+    palette=None,             # brand colours, applied in order
+    color_map=None,           # permanent category-to-colour pins
+    color_overrides=None,     # one-off pins for this chart; beat color_map
 ) -> bytes                    # PNG image bytes
 ```
 
@@ -56,12 +59,14 @@ render_chart(
   `None` won't sink a whole chart.
 - Raises `ChartError` (a `ValueError`) for an unsupported type, empty rows, or a
   missing column.
+- Colour pins are keyed by the category value for `bar` and `pie`, and by the
+  `y` column name for `line` and `scatter`, which draw a single series.
 
 ## Design notes
 
 - **Headless.** Forces matplotlib's `Agg` backend, so it renders on a server
   with no display.
-- **Pure.** No I/O, no globals — deterministic given its inputs, and safe to
+- **Pure.** No I/O, no globals: deterministic given its inputs, and safe to
   call from a worker thread (`asyncio.to_thread`).
 - **Typed.** Ships `py.typed`.
 
@@ -71,8 +76,9 @@ render_chart(
 pip install query-viz
 ```
 
-Only dependency is `matplotlib`.
+The distribution is named `query-viz`; the import package is `query_viz`. Only
+dependency is `matplotlib`.
 
 ## License
 
-Apache-2.0.
+Apache-2.0. See [LICENSE](https://github.com/sakura-sky/query-viz/blob/main/LICENSE).
