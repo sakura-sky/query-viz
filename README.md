@@ -1,5 +1,7 @@
 # query-viz
 
+[![PyPI](https://img.shields.io/pypi/v/query-viz)](https://pypi.org/project/query-viz/)
+
 **Render tabular query results as chart images.** Rows in, PNG out.
 
 `query-viz` does one thing: it turns a list of row dicts (exactly what a data
@@ -76,8 +78,10 @@ render_chart(
 pip install query-viz
 ```
 
-The distribution is named `query-viz`; the import package is `query_viz`. Only
-dependency is `matplotlib`.
+Published on [PyPI](https://pypi.org/project/query-viz/). Requires Python 3.10
+or later (tested on 3.10 to 3.14). Its only dependency is `matplotlib` 3.7 or
+later, below 4.0. The distribution is named `query-viz`; the import package is
+`query_viz`.
 
 ## License
 
