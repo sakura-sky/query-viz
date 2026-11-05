@@ -1,7 +1,7 @@
 # Security Policy
 
 `query-viz` renders untrusted data into an image. It does not touch the network,
-the filesystem, or credentials, so its attack surface is small — but a renderer
+the filesystem, or credentials, so its attack surface is small, but a renderer
 that accepts arbitrary input can still be pushed into excessive resource use, so
 we take those reports seriously.
 
@@ -28,14 +28,14 @@ In scope:
 
 Out of scope:
 
-- Bugs in `matplotlib` itself — report those upstream. We mitigate downstream
+- Bugs in `matplotlib` itself: report those upstream. We mitigate downstream
   where we can.
 - "The chart looks wrong." Rendering-quality issues are normal bugs; file a
   regular issue.
 
 ## Notes for callers
 
-`query-viz` does not bound the number of rows or series you hand it — that's the
+`query-viz` does not bound the number of rows or series you hand it; that's the
 caller's job. If you render user-driven queries, cap the row count *before*
 calling `render_chart` (the marketing agent it was extracted from does this via
 a max-rows guard). `render_chart` also coerces non-numeric `y` values to `0.0`

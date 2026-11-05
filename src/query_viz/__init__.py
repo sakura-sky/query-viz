@@ -51,11 +51,11 @@ from .render import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "SUPPORTED_CHART_TYPES",
     "ChartColorError",
     "ChartError",
     "ChartType",
     "ColorResolution",
-    "SUPPORTED_CHART_TYPES",
     "__version__",
     "is_valid_color",
     "parse_palette",

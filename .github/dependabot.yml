@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Hold version updates back for 14 days after a release. The GitHub Actions
+    # ecosystem supports a single cooldown for all update types. Security
+    # updates are not delayed: cooldown applies to version updates only.
+    cooldown:
+      default-days: 14
+    groups:
+      github-actions:
+        patterns:
+          - "*"
